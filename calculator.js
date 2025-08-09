@@ -13,62 +13,128 @@ let operands = {
 };
 const getOperands = () => [operands.left, operands.operator, operands.right];
 
+let operandEditMode = 'left';
+const resetState = () => operandEditMode = 'left';
 
-let operandState = 'left';
-const resetState = () => operandState = 'left';
-
-function updateOperand(input, mode) {
+function updateOperand(input, operand, mode) {
     switch (mode) {
         case 'append':
-            operands[operandState] += input;
+            operands[operand] += input;
             break;
         case 'new':
-            operands[operandState] = input;
-            break;
-    }
-    return operands[operandState];
-}
-
-function calculateResult() {
-    let [left, operator, right] = getOperands();
-    let result = operate(left, operator, right);
-
-    /**
-     * Update left operand without clearing other operands. This is to 
-     * allow operand reuse on clicking '=' button again
-     */
-    resetState();
-    updateOperand(result, 'new');
-}
-
-function readInput(input) {
-    const isNumber = (arg) => !isNaN(arg);
-    switch (operandState) {
-        case 'left':
-            operandState = isNumber(input) ? operandState : 'operator';
-            updateOperand(input);
-            break;
-        case 'operator':
-            operandState = isNumber(input) ? 'right' : operandState;
-            updateOperand(input);
-            break;
-        case 'right':
-            if (isNumber(input)) {
-                updateOperand(input);
-            }
+            operands[operand] = input;
             break;
     }
 }
 
-function updateDisplay() {
+// function updateOperandAndDisplay(input, operand, updateMode) {
+//     updateOperand(input, operand, updateMode);
+//     updateDisplay(operand);
+// }
+
+function updateDisplay(operand) {
     const display = document.querySelector(".display");
-    display.textContent = operands[operandState];
+    display.textContent = operands[operand];
 }
 
 function clearData() {
     operands.left = '';
     operands.operator = '';
     operands.right = '';
+}
+
+function clearFunction() {
+    clearData();
+    resetState();
+    updateDisplay('');
+}
+
+function resultFunction() {
+    let [left, operator, right] = getOperands();
+    let result = null;
+    switch (operandEditMode) {
+        case 'left':
+            break;
+        case 'operator':
+            operandEditMode = 'result';
+
+            result = operate(left, operator, left);
+            updateOperand(left, 'right', 'new');
+            updateOperand(result, 'left', 'new');
+            updateDisplay('left');
+            break;
+        case 'right':
+            operandEditMode = 'result';
+            result = operate(left, operator, right);
+            updateOperand(result, 'left', 'new');
+            updateDisplay('left');
+            break;
+        case 'result':
+            result = operate(left, operator, right);
+            updateOperand(result, 'left', 'new');
+            updateDisplay('left');
+            break;
+        default:
+            alert('Something is amok!');
+            break;
+    }
+}
+
+function operatorFunction(symbol) {
+    switch (operandEditMode) {
+        case 'left':
+            operandEditMode = 'operator';
+            updateOperand(symbol, 'operator', 'new');
+            updateDisplay('operator');
+            break;
+        case 'operator':
+            updateOperand(symbol, 'operator', 'new');
+            updateDisplay('operator');
+            break;
+        case 'right':
+            operandEditMode = 'result';
+
+            const [left, operator, right] = getOperands();
+            const result = operate(left, operator, right);
+            updateOperand(result, 'left', 'new');
+            updateDisplay('left');
+            break;
+        case 'result':
+            operandEditMode = 'operator';
+            updateOperand(symbol, 'operator', 'new');
+            updateDisplay('operator');
+            break;
+        default:
+            alert('Something is amok!');
+            break;
+    }
+}
+
+function numberFunction(symbol) {
+    switch (operandEditMode) {
+        case 'left':
+            updateOperand(symbol, 'left', 'append');
+            updateDisplay('left');
+            break;
+        case 'operator':
+            operandEditMode = 'right';
+            updateOperand(symbol, 'right', 'new');
+            updateDisplay('right');
+            break;
+        case 'right':
+            updateOperand(symbol, 'right', 'append');
+            updateDisplay('right');
+            break;
+        case 'result':
+            clearData();
+            operandEditMode = 'left';
+            updateOperand(symbol, 'left', 'new');
+            updateDisplay('left');
+            break;
+        default:
+            alert('Something is amok!');
+            break;
+        }
 }
 
 function setupButtons() {
@@ -87,27 +153,19 @@ function setupButtons() {
         multiply:   '*',
         divide:     '/',
     };
+    const getSymbol = button => idToSymbol[button.id]; 
+    const isNumber = (arg) => !isNaN(arg);
 
     const buttons = document.querySelectorAll("button");
     for (const button of buttons) {
         if (button.id === 'clear') {
-            button.onclick = () => {
-                clearData();
-                resetState();
-                updateDisplay();
-            }
+            button.onclick = () => clearFunction();
         } else if (button.id === 'result') {
-            button.onclick = () => {
-                let [left, operator, right] = getOperands();
-                calculateResult(left, operator, right);
-                updateDisplay();  
-            }
+            button.onclick = () => resultFunction();
+        } else if (isNumber(getSymbol(button))) {
+            button.onclick = () => numberFunction(getSymbol(button));
         } else {
-            button.onclick = () => {
-                let input = idToSymbol[button.id];
-                readInput(input);
-                updateDisplay();
-            }
+            button.onclick = () => operatorFunction(getSymbol(button));
         }
     }
 } 
