@@ -26,6 +26,31 @@ function updateDisplay() {
     }
 }
 
+function decFunction() {
+    const hasDecimal = (num) => num.includes('.');
+    const isEmpty = (num) => num.length === 0;
+
+    const addDecimal = (operand) => {
+        if (!hasDecimal(operands[operand])) {
+            const data = (isEmpty(operands[operand])) ? '0.' : '.';
+            operands[operand] += data;
+        }
+    }
+
+    switch (operandEditMode) {
+        case 'left':
+        case 'right':
+            addDecimal(operandEditMode);
+            break;
+        case 'operator':
+            break;
+        case 'result':
+            clearData();
+            addDecimal('left');
+            break;
+    }
+    updateDisplay();
+}
 
 function numFunction(input) {
     switch (operandEditMode) {
@@ -103,7 +128,7 @@ function resFunction() {
             result = operate(left, operator, right);
             operands['left'] = result;
             break;
-        }
+    }
     updateDisplay();
 }
 
@@ -144,6 +169,8 @@ function setupButtons() {
             button.onclick = () => clearFunction();
         } else if (button.id === 'result') {
             button.onclick = () => resFunction();
+        } else if (button.id === 'decimal') {
+            button.onclick = () => decFunction();
         } else if (isNumber(getSymbol(button))) {
             button.onclick = () => numFunction(getSymbol(button));
         } else {
