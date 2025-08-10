@@ -26,6 +26,19 @@ function updateDisplay() {
     }
 }
 
+function delFunction() {
+    switch (operandEditMode) {
+        case 'left':
+        case 'right':
+        case 'operator':
+            let operand = operands[operandEditMode];
+            operands[operandEditMode] = operand.substr(1);
+            break;
+        case 'result':
+            break;
+    }
+}
+
 function decFunction() {
     const hasDecimal = (num) => num.includes('.');
     const isEmpty = (num) => num.length === 0;
@@ -49,7 +62,6 @@ function decFunction() {
             addDecimal('left');
             break;
     }
-    updateDisplay();
 }
 
 function numFunction(input) {
@@ -68,7 +80,6 @@ function numFunction(input) {
             operands['left'] = input;
             break;
     }
-    updateDisplay();
 }
 
 function opFunction(input) {
@@ -97,7 +108,6 @@ function opFunction(input) {
             operands['operator'] = input;
             break;
     }
-    updateDisplay();
 }
 
 function resFunction() {
@@ -129,7 +139,6 @@ function resFunction() {
             operands['left'] = result;
             break;
     }
-    updateDisplay();
 }
 
 function clearData() {
@@ -169,6 +178,8 @@ function setupButtons() {
             button.onclick = () => clearFunction();
         } else if (button.id === 'result') {
             button.onclick = () => resFunction();
+        } else if (button.id === 'delete') {
+            button.onclick = () => delFunction();
         } else if (button.id === 'decimal') {
             button.onclick = () => decFunction();
         } else if (isNumber(getSymbol(button))) {
@@ -176,6 +187,7 @@ function setupButtons() {
         } else {
             button.onclick = () => opFunction(getSymbol(button));
         }
+        button.addEventListener("click", () => updateDisplay());
     }
 } 
 
