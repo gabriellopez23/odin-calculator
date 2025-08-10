@@ -16,25 +16,95 @@ const getOperands = () => [operands.left, operands.operator, operands.right];
 let operandEditMode = 'left';
 const resetState = () => operandEditMode = 'left';
 
-function updateOperand(input, operand, mode) {
-    switch (mode) {
-        case 'append':
-            operands[operand] += input;
-            break;
-        case 'new':
-            operands[operand] = input;
-            break;
+function updateDisplay() {
+    const display = document.querySelector(".display");
+
+    if (operandEditMode === 'result') {
+        display.textContent = operands['left'];
+    } else {
+        display.textContent = operands[operandEditMode];
     }
 }
 
-// function updateOperandAndDisplay(input, operand, updateMode) {
-//     updateOperand(input, operand, updateMode);
-//     updateDisplay(operand);
-// }
 
-function updateDisplay(operand) {
-    const display = document.querySelector(".display");
-    display.textContent = operands[operand];
+function numFunction(input) {
+    switch (operandEditMode) {
+        case 'left':
+        case 'right':
+            operands[operandEditMode] += input;
+            break;
+        case 'operator':
+            operandEditMode = 'right';
+            operands['right'] = input;
+            break;
+        case 'result':
+            clearData();
+            operandEditMode = 'left';
+            operands['left'] = input;
+            break;
+    }
+    updateDisplay();
+}
+
+function opFunction(input) {
+    let {left, operator, right} = operands;
+    let result = '';
+
+    switch (operandEditMode) {
+        case 'left':
+            operandEditMode = 'operator';
+            operands['operator'] = input;
+            break;
+        case 'right':
+            operandEditMode = 'operator';
+
+            // Store result in left
+            result = operate(left, operator, right);
+            operands['left'] = result;
+
+            operands['operator'] = input;
+            break;
+        case 'operator':
+            operands['operator'] = input;
+            break;
+        case 'result':
+            operandEditMode = 'operator';
+            operands['operator'] = input;
+            break;
+    }
+    updateDisplay();
+}
+
+function resFunction() {
+    let {left, operator, right} = operands;
+    let result = null;
+
+    switch (operandEditMode) {
+        case 'left':
+            break;
+        case 'right':
+            operandEditMode = 'result';
+
+            // Store result in left
+            result = operate(left, operator, right);
+            operands['left'] = result;
+            break;
+        case 'operator':
+            operandEditMode = 'result';
+
+            // Store result in left
+            result = operate(left, operator, left);
+            operands['left'] = result;
+
+            // Duplicate left into right to reuse as operands
+            operands['right'] = left;
+            break;
+        case 'result':
+            result = operate(left, operator, right);
+            operands['left'] = result;
+            break;
+        }
+    updateDisplay();
 }
 
 function clearData() {
@@ -46,95 +116,7 @@ function clearData() {
 function clearFunction() {
     clearData();
     resetState();
-    updateDisplay('');
-}
-
-function resultFunction() {
-    let [left, operator, right] = getOperands();
-    let result = null;
-    switch (operandEditMode) {
-        case 'left':
-            break;
-        case 'operator':
-            operandEditMode = 'result';
-
-            result = operate(left, operator, left);
-            updateOperand(left, 'right', 'new');
-            updateOperand(result, 'left', 'new');
-            updateDisplay('left');
-            break;
-        case 'right':
-            operandEditMode = 'result';
-            result = operate(left, operator, right);
-            updateOperand(result, 'left', 'new');
-            updateDisplay('left');
-            break;
-        case 'result':
-            result = operate(left, operator, right);
-            updateOperand(result, 'left', 'new');
-            updateDisplay('left');
-            break;
-        default:
-            alert('Something is amok!');
-            break;
-    }
-}
-
-function operatorFunction(symbol) {
-    switch (operandEditMode) {
-        case 'left':
-            operandEditMode = 'operator';
-            updateOperand(symbol, 'operator', 'new');
-            updateDisplay('operator');
-            break;
-        case 'operator':
-            updateOperand(symbol, 'operator', 'new');
-            updateDisplay('operator');
-            break;
-        case 'right':
-            operandEditMode = 'result';
-
-            const [left, operator, right] = getOperands();
-            const result = operate(left, operator, right);
-            updateOperand(result, 'left', 'new');
-            updateDisplay('left');
-            break;
-        case 'result':
-            operandEditMode = 'operator';
-            updateOperand(symbol, 'operator', 'new');
-            updateDisplay('operator');
-            break;
-        default:
-            alert('Something is amok!');
-            break;
-    }
-}
-
-function numberFunction(symbol) {
-    switch (operandEditMode) {
-        case 'left':
-            updateOperand(symbol, 'left', 'append');
-            updateDisplay('left');
-            break;
-        case 'operator':
-            operandEditMode = 'right';
-            updateOperand(symbol, 'right', 'new');
-            updateDisplay('right');
-            break;
-        case 'right':
-            updateOperand(symbol, 'right', 'append');
-            updateDisplay('right');
-            break;
-        case 'result':
-            clearData();
-            operandEditMode = 'left';
-            updateOperand(symbol, 'left', 'new');
-            updateDisplay('left');
-            break;
-        default:
-            alert('Something is amok!');
-            break;
-        }
+    updateDisplay();
 }
 
 function setupButtons() {
@@ -161,11 +143,11 @@ function setupButtons() {
         if (button.id === 'clear') {
             button.onclick = () => clearFunction();
         } else if (button.id === 'result') {
-            button.onclick = () => resultFunction();
+            button.onclick = () => resFunction();
         } else if (isNumber(getSymbol(button))) {
-            button.onclick = () => numberFunction(getSymbol(button));
+            button.onclick = () => numFunction(getSymbol(button));
         } else {
-            button.onclick = () => operatorFunction(getSymbol(button));
+            button.onclick = () => opFunction(getSymbol(button));
         }
     }
 } 
