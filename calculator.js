@@ -207,8 +207,10 @@ function resFunction() {
     }
 }
 
-function setupButtons() {
-    const getSymbol = button => {
+const isNumber = (arg) => !isNaN(arg);
+const isOperator = (arg) => '+-*/'.includes(arg);
+
+const getSymbol = id => {
         const idToSymbol = {
             zero:       '0',
             one:        '1',
@@ -225,26 +227,30 @@ function setupButtons() {
             multiply:   '*',
             divide:     '/',
         };
-        return idToSymbol[button.id]
+    return idToSymbol[id]
     }; 
-    const isNumber = (arg) => !isNaN(arg);
 
+
+
+function setupButtons() {
     const buttons = document.querySelectorAll("button");
     for (const button of buttons) {
-        if (button.id === 'clear') {
+        let id = button.id;
+
+        if (id === 'clear') {
             button.onclick = () => clearFunction();
-        } else if (button.id === 'result') {
+        } else if (id === 'result') {
             button.onclick = () => resFunction();
-        } else if (button.id === 'delete') {
+        } else if (id === 'delete') {
             button.onclick = () => delFunction();
-        } else if (button.id === 'decimal') {
+        } else if (id === 'decimal') {
             button.onclick = () => decFunction();
-        } else if (button.id === 'negate') {
+        } else if (id === 'negate') {
             button.onclick = () => negFunction();
-        } else if (isNumber(getSymbol(button))) {
-            button.onclick = () => numFunction(getSymbol(button));
+        } else if (isNumber(getSymbol(id))) {
+            button.onclick = () => numFunction(getSymbol(id));
         } else {
-            button.onclick = () => opFunction(getSymbol(button));
+            button.onclick = () => opFunction(getSymbol(id));
         }
         button.addEventListener("click", () => updateDisplay());
     }
