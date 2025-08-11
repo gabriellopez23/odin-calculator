@@ -56,6 +56,14 @@ function clearFunction() {
     operandEditMode = 'left';
 }
 
+function clearEntry() {
+    if (operandEditMode === 'result') {
+        clearData();
+    } else {
+        operands[operandEditMode] = '';
+    }
+}
+
 function numFunction(input) {
     switch (operandEditMode) {
         case 'left':
@@ -239,6 +247,9 @@ function setupKeyboard() {
             case 'Escape':
                 clearFunction();
                 break;
+            case 'Delete':
+                clearEntry();
+                break;
             case 'Backspace':
                 delFunction();
                 break;
@@ -268,6 +279,8 @@ function setupButtons() {
 
         if (id === 'clear') {
             button.onclick = () => clearFunction();
+        } else if (id === 'clear-entry') {
+            button.onclick = () => clearEntry();
         } else if (id === 'result') {
             button.onclick = () => resFunction();
         } else if (id === 'delete') {
