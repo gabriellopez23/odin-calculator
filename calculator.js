@@ -37,82 +37,11 @@ function updateNumber(operand, inputData) {
 function updateDisplay() {
     const display = document.querySelector(".display");
 
-    // Display left, since it stores the result
-    if (operandEditMode === 'result') {
-        display.textContent = operands['left'];
-    } else {
-        display.textContent = operands[operandEditMode];
-    }
-}
-
-function negate(operand) {
-    /**
-     * Negate any number, unless it is a 0 without a decimal point
-     */
-    if (isZeroInteger(operand)) {
-        return operand;
-    } 
-    return (isNegated(operand) ? operand.substring(1) : '-' + operand);
-}
-
-function negFunction() {
-    switch (operandEditMode) {
-        case 'left':
-        case 'right':
-            let operand = operands[operandEditMode];
-            operands[operandEditMode] = negate(operand);
-            break;
-        case 'operator':
-        case 'result':
-            break;
-    }
-}
-
-function backspace(operand) {
-    /**
-     * If a character is negated and too short, return an empty string. We don't
-     * want to display a negation symbol by itself. Otherwise, delete the 
-     * last character.
-     */
-    if (isNegated(operand) && operand.length < 3) {
-        return '';
-    }
-    return operand.substring(0, operand.length - 1);
-}
-
-function delFunction() {
-    switch (operandEditMode) {
-        case 'left':
-        case 'right':
-        case 'operator':
-            let operand = operands[operandEditMode];
-            operands[operandEditMode] = backspace(operand);
-            break;
-        case 'result':
-            break;
-    }
-}
-
-function decFunction() {
-    const addDecimal = (operand) => {
-        if (!hasDecimal(operands[operand])) {
-            const data = (isEmpty(operands[operand])) ? '0.' : '.';
-            operands[operand] += data;
-        }
-    }
-
-    switch (operandEditMode) {
-        case 'left':
-        case 'right':
-            addDecimal(operandEditMode);
-            break;
-        case 'operator':
-            break;
-        case 'result':
-            clearData();
-            addDecimal('left');
-            break;
-    }
+    // If edit mode is 'result', display left since it stores the result
+    const operand = operandEditMode === 'result' ? 
+                    operands['left'] : 
+                    operands[operandEditMode];
+    display.textContent = isEmpty(operand) ? '0' : operand;
 }
 
 function clearData() {
@@ -207,6 +136,76 @@ function resFunction() {
     }
 }
 
+function negate(operand) {
+    /**
+     * Negate any number, unless it is a 0 without a decimal point
+     */
+    if (isZeroInteger(operand)) {
+        return operand;
+    } 
+    return (isNegated(operand) ? operand.substring(1) : '-' + operand);
+}
+
+function negFunction() {
+    switch (operandEditMode) {
+        case 'left':
+        case 'right':
+            let operand = operands[operandEditMode];
+            operands[operandEditMode] = negate(operand);
+            break;
+        case 'operator':
+        case 'result':
+            break;
+    }
+}
+
+function backspace(operand) {
+    /**
+     * If a character is negated and too short, return an empty string. We don't
+     * want to display a negation symbol by itself. Otherwise, delete the 
+     * last character.
+     */
+    if (isNegated(operand) && operand.length < 3) {
+        return '';
+    }
+    return operand.substring(0, operand.length - 1);
+}
+
+function delFunction() {
+    switch (operandEditMode) {
+        case 'left':
+        case 'right':
+        case 'operator':
+            let operand = operands[operandEditMode];
+            operands[operandEditMode] = backspace(operand);
+            break;
+        case 'result':
+            break;
+    }
+}
+
+function decFunction() {
+    const addDecimal = (operand) => {
+        if (!hasDecimal(operands[operand])) {
+            const data = (isEmpty(operands[operand])) ? '0.' : '.';
+            operands[operand] += data;
+        }
+    }
+
+    switch (operandEditMode) {
+        case 'left':
+        case 'right':
+            addDecimal(operandEditMode);
+            break;
+        case 'operator':
+            break;
+        case 'result':
+            clearData();
+            addDecimal('left');
+            break;
+    }
+}
+
 const isNumber = (arg) => !isNaN(arg);
 const isOperator = (arg) => '+-*/'.includes(arg);
 
@@ -282,9 +281,12 @@ function setupButtons() {
         } else {
             button.onclick = () => opFunction(getSymbol(id));
         }
+
+        // Clicking any button should update the display
         button.addEventListener("click", () => updateDisplay());
     }
 } 
 
 setupButtons();
 setupKeyboard();
+updateDisplay();
