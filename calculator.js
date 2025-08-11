@@ -211,26 +211,59 @@ const isNumber = (arg) => !isNaN(arg);
 const isOperator = (arg) => '+-*/'.includes(arg);
 
 const getSymbol = id => {
-        const idToSymbol = {
-            zero:       '0',
-            one:        '1',
-            two:        '2',
-            three:      '3',
-            four:       '4',
-            five:       '5',
-            six:        '6',
-            seven:      '7',
-            eight:      '8',
-            nine:       '9',
-            add:        '+',
-            subtract:   '-',
-            multiply:   '*',
-            divide:     '/',
-        };
+    const idToSymbol = {
+        zero:       '0',
+        one:        '1',
+        two:        '2',
+        three:      '3',
+        four:       '4',
+        five:       '5',
+        six:        '6',
+        seven:      '7',
+        eight:      '8',
+        nine:       '9',
+        add:        '+',
+        subtract:   '-',
+        multiply:   '*',
+        divide:     '/',
+    };
     return idToSymbol[id]
-    }; 
+}; 
 
+function setupKeyboard() {
+    document.addEventListener("keydown", function (event) {
+        if (event.defaultPrevented) {
+            return;
+        }
 
+        switch (event.key) {
+            case 'Escape':
+                clearFunction();
+                break;
+            case 'Backspace':
+                delFunction();
+                break;
+            case 'Decimal':
+                decFunction();
+                break;
+            case 'Enter':
+            case '=':
+                resFunction();
+                break;
+            default:
+                if (isNumber(event.key)) {
+                    numFunction(event.key);
+                } else if(isOperator(event.key)) {
+                    opFunction(event.key);
+                }  
+                break;
+        }
+        updateDisplay();
+
+        // Cancel the default action to avoid it being handled twice
+        event.preventDefault();
+        }, true);
+}
 
 function setupButtons() {
     const buttons = document.querySelectorAll("button");
@@ -257,3 +290,4 @@ function setupButtons() {
 } 
 
 setupButtons();
+setupKeyboard();
