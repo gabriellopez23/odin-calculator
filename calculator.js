@@ -1,29 +1,59 @@
+function operate(left, operator, right) {
 const operatorToOperation = {
     "+": (a, b) => Number(a) + Number(b),
     "-": (a, b) => Number(a) - Number(b),
     "*": (a, b) => Number(a) * Number(b),
     "/": (a, b) => Number(a) / Number(b),
+    };
+    return operatorToOperation[operator](left, right);
 }
-const operate = (left, operator, right) => operatorToOperation[operator](left, right);
 
 let operands = {
     left: '',
     operator: '',
     right: '',
 };
-const getOperands = () => [operands.left, operands.operator, operands.right];
-
 let operandEditMode = 'left';
-const resetState = () => operandEditMode = 'left';
+
+const hasDecimal = (num) => num.includes('.');
+const isZeroInteger = (operand) => parseInt(operand) === 0 && !hasDecimal(operand);
+const isEmpty = (num) => num.length === 0;
+
+function updateNumber(operand, inputData) {
+    /**
+     * Appends new data to operand value, unless operand value is 0. 
+     * 
+     * If it is 0, trailing zeroes are ignored and the operand is 
+     * returned unmodified. Any other number replaces the 0.  
+     */
+    if (isZeroInteger(operand)) {
+        return (parseFloat(inputData) === 0) ? operand : inputData;
+    } else {
+        return operand + inputData;
+    }
+}
 
 function updateDisplay() {
     const display = document.querySelector(".display");
 
+    // Display left, since it stores the result
     if (operandEditMode === 'result') {
         display.textContent = operands['left'];
     } else {
         display.textContent = operands[operandEditMode];
     }
+}
+
+function backspace(operand) {
+    /**
+     * If a character is negated and too short, return an empty string. We don't
+     * want to display a negation symbol by itself. Otherwise, delete the 
+     * last character.
+     */
+    if (isNegated(operand) && operand.length < 3) {
+        return '';
+    }
+    return operand.substring(0, operand.length - 1);
 }
 
 function delFunction() {
@@ -32,7 +62,7 @@ function delFunction() {
         case 'right':
         case 'operator':
             let operand = operands[operandEditMode];
-            operands[operandEditMode] = operand.substr(1);
+            operands[operandEditMode] = backspace(operand);
             break;
         case 'result':
             break;
@@ -40,9 +70,6 @@ function delFunction() {
 }
 
 function decFunction() {
-    const hasDecimal = (num) => num.includes('.');
-    const isEmpty = (num) => num.length === 0;
-
     const addDecimal = (operand) => {
         if (!hasDecimal(operands[operand])) {
             const data = (isEmpty(operands[operand])) ? '0.' : '.';
@@ -64,11 +91,24 @@ function decFunction() {
     }
 }
 
+function clearData() {
+    operands.left = '';
+    operands.operator = '';
+    operands.right = '';
+}
+
+function clearFunction() {
+    // Reset edit mode and data
+    clearData();
+    operandEditMode = 'left';
+}
+
 function numFunction(input) {
     switch (operandEditMode) {
         case 'left':
         case 'right':
-            operands[operandEditMode] += input;
+            let operand = operands[operandEditMode];
+            operands[operandEditMode] = updateNumber(operand, input);
             break;
         case 'operator':
             operandEditMode = 'right';
@@ -84,12 +124,14 @@ function numFunction(input) {
 
 function opFunction(input) {
     let {left, operator, right} = operands;
-    let result = '';
+    let result = null;
 
     switch (operandEditMode) {
         case 'left':
+            if (!isEmpty(left)) {
             operandEditMode = 'operator';
             operands['operator'] = input;
+            }
             break;
         case 'right':
             operandEditMode = 'operator';
@@ -141,19 +183,8 @@ function resFunction() {
     }
 }
 
-function clearData() {
-    operands.left = '';
-    operands.operator = '';
-    operands.right = '';
-}
-
-function clearFunction() {
-    clearData();
-    resetState();
-    updateDisplay();
-}
-
 function setupButtons() {
+    const getSymbol = button => {
     const idToSymbol = {
         zero:       '0',
         one:        '1',
@@ -170,7 +201,8 @@ function setupButtons() {
         multiply:   '*',
         divide:     '/',
     };
-    const getSymbol = button => idToSymbol[button.id]; 
+        return idToSymbol[button.id]
+    }; 
     const isNumber = (arg) => !isNaN(arg);
 
     const buttons = document.querySelectorAll("button");
