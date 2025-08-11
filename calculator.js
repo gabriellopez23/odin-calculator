@@ -155,6 +155,7 @@ function clearFunction() {
 
 function setupButtons() {
     const idToSymbol = {
+        zero:       '0',
         one:        '1',
         two:        '2',
         three:      '3',
