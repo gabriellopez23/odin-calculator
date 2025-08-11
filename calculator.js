@@ -243,7 +243,7 @@ function setupKeyboard() {
             case 'Backspace':
                 delFunction();
                 break;
-            case 'Decimal':
+            case '.':
                 decFunction();
                 break;
             case 'Enter':
@@ -259,9 +259,6 @@ function setupKeyboard() {
                 break;
         }
         updateDisplay();
-
-        // Cancel the default action to avoid it being handled twice
-        event.preventDefault();
         }, true);
 }
 
