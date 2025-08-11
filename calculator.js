@@ -1,9 +1,9 @@
 function operate(left, operator, right) {
-const operatorToOperation = {
-    "+": (a, b) => Number(a) + Number(b),
-    "-": (a, b) => Number(a) - Number(b),
-    "*": (a, b) => Number(a) * Number(b),
-    "/": (a, b) => Number(a) / Number(b),
+    const operatorToOperation = {
+        "+": (a, b) => Number(a) + Number(b),
+        "-": (a, b) => Number(a) - Number(b),
+        "*": (a, b) => Number(a) * Number(b),
+        "/": (a, b) => Number(a) / Number(b),
     };
     return operatorToOperation[operator](left, right);
 }
@@ -17,6 +17,7 @@ let operandEditMode = 'left';
 
 const hasDecimal = (num) => num.includes('.');
 const isZeroInteger = (operand) => parseInt(operand) === 0 && !hasDecimal(operand);
+const isNegated = (num) => num.startsWith('-');
 const isEmpty = (num) => num.length === 0;
 
 function updateNumber(operand, inputData) {
@@ -41,6 +42,29 @@ function updateDisplay() {
         display.textContent = operands['left'];
     } else {
         display.textContent = operands[operandEditMode];
+    }
+}
+
+function negate(operand) {
+    /**
+     * Negate any number, unless it is a 0 without a decimal point
+     */
+    if (isZeroInteger(operand)) {
+        return operand;
+    } 
+    return (isNegated(operand) ? operand.substring(1) : '-' + operand);
+}
+
+function negFunction() {
+    switch (operandEditMode) {
+        case 'left':
+        case 'right':
+            let operand = operands[operandEditMode];
+            operands[operandEditMode] = negate(operand);
+            break;
+        case 'operator':
+        case 'result':
+            break;
     }
 }
 
@@ -129,8 +153,8 @@ function opFunction(input) {
     switch (operandEditMode) {
         case 'left':
             if (!isEmpty(left)) {
-            operandEditMode = 'operator';
-            operands['operator'] = input;
+                operandEditMode = 'operator';
+                operands['operator'] = input;
             }
             break;
         case 'right':
@@ -185,22 +209,22 @@ function resFunction() {
 
 function setupButtons() {
     const getSymbol = button => {
-    const idToSymbol = {
-        zero:       '0',
-        one:        '1',
-        two:        '2',
-        three:      '3',
-        four:       '4',
-        five:       '5',
-        six:        '6',
-        seven:      '7',
-        eight:      '8',
-        nine:       '9',
-        add:        '+',
-        subtract:   '-',
-        multiply:   '*',
-        divide:     '/',
-    };
+        const idToSymbol = {
+            zero:       '0',
+            one:        '1',
+            two:        '2',
+            three:      '3',
+            four:       '4',
+            five:       '5',
+            six:        '6',
+            seven:      '7',
+            eight:      '8',
+            nine:       '9',
+            add:        '+',
+            subtract:   '-',
+            multiply:   '*',
+            divide:     '/',
+        };
         return idToSymbol[button.id]
     }; 
     const isNumber = (arg) => !isNaN(arg);
@@ -215,6 +239,8 @@ function setupButtons() {
             button.onclick = () => delFunction();
         } else if (button.id === 'decimal') {
             button.onclick = () => decFunction();
+        } else if (button.id === 'negate') {
+            button.onclick = () => negFunction();
         } else if (isNumber(getSymbol(button))) {
             button.onclick = () => numFunction(getSymbol(button));
         } else {
