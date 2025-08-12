@@ -5,7 +5,8 @@ function operate(left, operator, right) {
         "*": (a, b) => Number(a) * Number(b),
         "/": (a, b) => Number(a) / Number(b),
     };
-    return operatorToOperation[operator](left, right);
+    const result = operatorToOperation[operator](left, right);
+    return result.toString();
 }
 
 let operands = {
