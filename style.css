@@ -1,55 +1,96 @@
+:root {
+    --button-side-length: 92px;
+    --outset-border-color: rgb(76, 45, 124);
+}
+
 * {
-    font-family: 'Courier New', Courier, monospace;
+    background: rgb(44, 37, 94);
+
+    font-family: Consolas;
+    
     margin: 0;
     padding: 0;
-    text-align: center;
 }
 
 .calculator {
-    border: solid black;
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
-    border-bottom-left-radius: 40px;
-    border-bottom-right-radius: 40px;
+    background: rgb(62, 51, 129);
+
+    border: 8px outset var(--outset-border-color);
+    box-shadow: 16px 20px 4px rgb(0, 0, 0);
+
+    border-top-left-radius: 40px;
+    border-top-right-radius: 40px;
+    border-bottom-left-radius: 50px;
+    border-bottom-right-radius: 50px;
     
-    max-width: 80%;
+    margin: 80px auto;
+    width: 450px;
 }
 
 .display {
-    border: solid black;
-    border-radius: 20%;
+    background: rgb(43, 97, 52);
+    
+    font-size: 34px;
 
-    height: 100px;
-    max-width: 90%;
-    margin: 16px auto;
+    border: 4px inset rgb(121, 92, 0);
+    border-radius: 20px;
+    margin: 20px auto;
+    padding: 0 8px 0 2px;
+
+    height: 90px;
+    width: 380px;
 
     display: flex;
     justify-content: flex-end;
-    align-items: center;
-    font-size: 64px;
+    align-items: flex-end;
 }
 
 ul {
     list-style: none;
-    margin: 0;
-    padding: 0;
 }
 
 .buttons {
-    /* border: solid black; */
+    background: inherit;
+    margin: 30px auto;
 
+    width: 400px;
+}
+
+.row {
+    background: inherit;
+    margin: 6px 0;
+
+    display: flex;
+    justify-content: space-between;
 }
 
 .buttons
 button {
-    font-size: 40px;
+    background: rgb(82, 82, 82);
+
+    font-size: 36px;
+    font-weight: bold;
+    text-align: center;
     
-    border-radius: 30%;
+    box-shadow: 2px 4px 2px;
+
+    border: 6px outset var(--outset-border-color);
+    border-radius: 15%;
     padding: 8px 16px;
+
+    width: var(--button-side-length);
+    height: var(--button-side-length);
 }
 
-.row {
-    display: flex;
-    justify-content: space-evenly;
-    /* margin: 32px 0; */
+#clear {
+    background: rgb(141, 45, 0);
 }
+
+#divide, #multiply, #subtract, #add {
+    background: rgb(131, 85, 0);
+}
+
+#result {
+    background: rgb(120, 120, 120);
+}
+
