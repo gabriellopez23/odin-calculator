@@ -21,7 +21,24 @@ const isZeroInteger = (operand) => parseInt(operand) === 0 && !hasDecimal(operan
 const isNegated = (num) => num.startsWith('-');
 const isEmpty = (num) => num.length === 0;
 
+const MAX_LEN = 15;
+const MAX_FRAC_DIGITS = 12;
+
+const getTrueLength = (value) => {
+    const decimalOffset = Number(hasDecimal(value));
+    const negationOffset = Number(isNegated(value));
+    return value.length - decimalOffset - negationOffset;
+}
+
 function updateNumber(operand, inputData) {
+    /** 
+     * Max length of an operand is 16 digits, excluding '.' and '-'. 
+     * If the operand is at max length, return the operand. 
+     **/
+    if (getTrueLength(operand) >= MAX_LEN) {
+        return operand;
+    }
+
     /**
      * Appends new data to operand value, unless operand value is 0. 
      * 
@@ -42,7 +59,17 @@ function updateDisplay() {
     const operand = operandEditMode === 'result' ? 
                     operands['left'] : 
                     operands[operandEditMode];
-    display.textContent = isEmpty(operand) ? '0' : operand;
+
+    if (isEmpty(operand)){
+        display.textContent = '0';
+    } else if (getTrueLength(operand) > MAX_LEN) {
+        const value = Number(operand);
+        const expForm = value.toExponential(MAX_FRAC_DIGITS);
+        display.textContent = expForm;
+    } else {
+        display.textContent = operand;
+    }
+
 }
 
 function clearData() {
@@ -151,8 +178,9 @@ function negate(operand) {
      */
     if (isZeroInteger(operand)) {
         return operand;
-    } 
-    return (isNegated(operand) ? operand.substring(1) : '-' + operand);
+    } else {
+        return (isNegated(operand) ? operand.substring(1) : '-' + operand);
+    }
 }
 
 function negFunction() {
