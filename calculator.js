@@ -163,7 +163,10 @@ function negFunction() {
             operands[operandEditMode] = negate(operand);
             break;
         case 'operator':
+            break;
         case 'result':
+            operandEditMode = 'left';
+            operands['left'] = negate(operands['left']);
             break;
     }
 }
@@ -207,6 +210,8 @@ function decFunction() {
             addDecimal(operandEditMode);
             break;
         case 'operator':
+            operandEditMode = 'right';
+            addDecimal('right')
             break;
         case 'result':
             clearData();
